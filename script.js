@@ -188,3 +188,66 @@ window.addEventListener('mousemove', (event) => {
 
 init();
 animate();
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const sideNavLinks = document.querySelectorAll('.side-navbar a');
+    const projectItems = document.querySelectorAll('.project-item');
+    const dynamicStyles = document.getElementById('dynamic-styles');
+  
+    function focusProject(projectId) {
+      projectItems.forEach(item => {
+        if (item.id === projectId) {
+          item.classList.add('focused');
+          item.classList.remove('blurred');
+        } else {
+          item.classList.add('blurred');
+          item.classList.remove('focused');
+        }
+      });
+  
+      // Scroll to the focused project
+      const focusedProject = document.getElementById(projectId);
+      if (focusedProject) {
+        focusedProject.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  
+    function resetProjects() {
+      projectItems.forEach(item => {
+        item.classList.remove('focused', 'blurred');
+      });
+    }
+  
+    sideNavLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const projectId = this.getAttribute('data-project');
+        focusProject(projectId);
+  
+        // Update URL hash without scrolling
+        history.pushState(null, null, this.getAttribute('href'));
+      });
+    });
+  
+    // Handle initial load and back/forward navigation
+    window.addEventListener('load', handleHashChange);
+    window.addEventListener('hashchange', handleHashChange);
+  
+    function handleHashChange() {
+      const hash = window.location.hash.substring(1);
+      if (hash) {
+        focusProject(hash);
+      } else {
+        resetProjects();
+      }
+    }
+  
+    // Reset projects when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.side-navbar') && !e.target.closest('.project-item')) {
+        resetProjects();
+        history.pushState(null, null, window.location.pathname);
+      }
+    });
+  });
